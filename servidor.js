@@ -24,8 +24,6 @@ duracao INTEGER NOT NULL
 )
 `);
 
-res.status(200).json(treino);
-;
 // ------------------------------------------------------------
 // Os dados moram aqui, na memoria. Somem quando o servidor cai.
 // (Na Aula 03 isso vira banco de dados.)
