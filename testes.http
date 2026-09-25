@@ -84,7 +84,7 @@ Content-Type: application/json
 DELETE {{url}}/treinos/2
 
 
-### 11 - Apagar um treino que nao existe   -> espera 404
+### 11no - Apagar um treino que nao existe   -> espera 404
 DELETE {{url}}/treinos/99999
 
 

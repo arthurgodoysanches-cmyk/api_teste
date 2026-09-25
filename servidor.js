@@ -41,11 +41,13 @@ app.get('/treinos', (req, res) => {
     const { busca } = req.query;
 
     if (busca) {
+        // DESAFIO 10: O % vai no valor passado ao all(), nunca fixo na string SQL!
         const termoBusca = `%${busca}%`;
         const treinosFiltrados = db.prepare('SELECT * FROM treinos WHERE nome LIKE ?').all(termoBusca);
         return res.status(200).json(treinosFiltrados);
     }
 
+    // Comportamento padrão sem busca
     const todosTreinos = db.prepare('SELECT * FROM treinos').all();
     res.status(200).json(todosTreinos);
 });
@@ -75,6 +77,7 @@ app.get('/treinos/resumo', (req, res) => {
 app.get('/treinos/:id', (req, res) => {
     const idParam = req.params.id;
 
+    // DESAFIO 12: Valida se o ID enviado NÃO é composto apenas de números inteiros
     if (!/^\d+\$/.test(idParam)) {
         return res.status(400).json({ erro: 'O ID fornecido deve ser um numero inteiro valido.' });
     }
