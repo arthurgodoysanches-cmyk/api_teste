@@ -3,18 +3,15 @@
 // API do Diario de Treinos
 // Back-End I - CEEP Pedro Boaretto Neto
 // ============================================================
-// Este arquivo esta quase vazio DE PROPOSITO.
-// Hoje voce vai escrever as rotas, uma de cada vez, conferindo
-// no testes.http se cada uma responde o status certo.
-// O que cada rota deve fazer esta no README.md.
-// ============================================================
 
 const express = require('express');
 const { DatabaseSync } = require('node:sqlite');
 const app = express();
 app.use(express.json());
+
 // Conecta ao banco (cria o arquivo treinos.db se nao existir)
 const db = new DatabaseSync('treinos.db');
+
 // Garante que a tabela existe
 db.exec(`
 CREATE TABLE IF NOT EXISTS treinos (
@@ -25,16 +22,7 @@ duracao INTEGER NOT NULL
 `);
 
 // ------------------------------------------------------------
-// Os dados moram aqui, na memoria. Somem quando o servidor cai.
-// (Na Aula 03 isso vira banco de dados.)
-// ------------------------------------------------------------
-const treinos = [];
-let proximoId = 1;
-
-// ------------------------------------------------------------
 // Validacao
-// Escreva a funcao validarTreino(corpo), que devolve a mensagem
-// de erro quando algo esta errado, ou null quando esta tudo certo.
 // ------------------------------------------------------------
 function validarTreino(corpo) {
     if (typeof corpo.nome !== 'string' || corpo.nome.trim() === '') {
@@ -53,20 +41,17 @@ app.get('/treinos', (req, res) => {
     const { busca } = req.query;
 
     if (busca) {
-        // O % vai no valor passado ao prepare().run/all, nunca fixo na string SQL!
         const termoBusca = `%${busca}%`;
         const treinosFiltrados = db.prepare('SELECT * FROM treinos WHERE nome LIKE ?').all(termoBusca);
         return res.status(200).json(treinosFiltrados);
     }
 
-    // Comportamento padrão sem busca
     const todosTreinos = db.prepare('SELECT * FROM treinos').all();
     res.status(200).json(todosTreinos);
 });
 
 // ------------------------------------------------------------
 // GET /treinos/resumo - traz estatisticas gerais dos treinos
-// (ATENÇÃO: Obrigatoriamente posicionado ANTES de /treinos/:id)
 // ------------------------------------------------------------
 app.get('/treinos/resumo', (req, res) => {
     const resumo = db.prepare(`
@@ -88,14 +73,13 @@ app.get('/treinos/resumo', (req, res) => {
 // GET /treinos/:id - busca um treino pelo id (400 se invalido, 404 se nao existir)
 // ------------------------------------------------------------
 app.get('/treinos/:id', (req, res) => {
-    const { id } = req.params;
+    const idParam = req.params.id;
 
-    // Regra 12: Valida se o ID enviado NÃO é composto apenas de números inteiros
-    if (!/^\d+\$/.test(id)) {
+    if (!/^\d+\$/.test(idParam)) {
         return res.status(400).json({ erro: 'O ID fornecido deve ser um numero inteiro valido.' });
     }
 
-    const idNumerico = Number(id);
+    const idNumerico = Number(idParam);
     const treino = db.prepare('SELECT * FROM treinos WHERE id = ?').get(idNumerico);
     
     if (treino === undefined) {
@@ -112,11 +96,11 @@ app.post('/treinos', (req, res) => {
     if (erro !== null) {
         return res.status(400).json({ erro: erro });
     }
-    // Insere no banco
+    
     const resultado = db
         .prepare('INSERT INTO treinos (nome, duracao) VALUES (?, ?)')
         .run(req.body.nome, req.body.duracao);
-    // Busca o treino recem-criado para devolver com o id gerado
+        
     const novo = db
         .prepare('SELECT * FROM treinos WHERE id = ?')
         .get(resultado.lastInsertRowid);
