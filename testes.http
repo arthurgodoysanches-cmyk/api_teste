@@ -60,7 +60,18 @@ Content-Type: application/json
 }
 
 
-### 8 - Alterar o treino 1                 -> espera 200
+### 8 - Alterar o trBusca por nome. Faça o GET /treinos aceitar ?busca=peito e devolver os treinos cujo nome contém
+esse texto, com WHERE nome LIKE ?. Cuidado: o % vai no valor que você passa (’%peito%’), nunca
+dentro do SQL.
+
+6
+
+11. Resumo. Crie GET /treinos/resumo devolvendo { "total": 4, "minutos": 210, "media": 52.5
+}, com COUNT, SUM e AVG numa consulta só. Igual ao /treinos/total, essa rota precisa vir antes do
+/treinos/:id.
+12. Id invalido. Hoje GET /treinos/abc responde 404. Pense bem: o treino não existe, ou o pedido está
+errado? Faça essa rota responder 400 quando o id não for um número inteiro, e continuar respondendo
+404 quando for um número que não existe.eino 1                 -> espera 200
 PUT {{url}}/treinos/1
 Content-Type: application/json
 

@@ -47,21 +47,57 @@ function validarTreino(corpo) {
 }
 
 // ------------------------------------------------------------
-// GET /treinos - lista todos os treinos
+// GET /treinos - lista todos os treinos (Aceita ?busca=nome)
 // ------------------------------------------------------------
-
 app.get('/treinos', (req, res) => {
-    const treinos = db.prepare('SELECT * FROM treinos').all();
-    res.status(200).json(treinos);
+    const { busca } = req.query;
+
+    if (busca) {
+        // O % vai no valor passado ao prepare().run/all, nunca fixo na string SQL!
+        const termoBusca = `%${busca}%`;
+        const treinosFiltrados = db.prepare('SELECT * FROM treinos WHERE nome LIKE ?').all(termoBusca);
+        return res.status(200).json(treinosFiltrados);
+    }
+
+    // Comportamento padrão sem busca
+    const todosTreinos = db.prepare('SELECT * FROM treinos').all();
+    res.status(200).json(todosTreinos);
 });
 
 // ------------------------------------------------------------
-// GET /treinos/:id - busca um treino pelo id (404 se nao existir)
+// GET /treinos/resumo - traz estatisticas gerais dos treinos
+// (ATENÇÃO: Obrigatoriamente posicionado ANTES de /treinos/:id)
 // ------------------------------------------------------------
+app.get('/treinos/resumo', (req, res) => {
+    const resumo = db.prepare(`
+        SELECT 
+            COUNT(*) AS total, 
+            SUM(duracao) AS minutos, 
+            AVG(duracao) AS media 
+        FROM treinos
+    `).get();
 
+    res.status(200).json({
+        total: Number(resumo.total || 0),
+        minutos: Number(resumo.minutos || 0),
+        media: Number(resumo.media || 0)
+    });
+});
+
+// ------------------------------------------------------------
+// GET /treinos/:id - busca um treino pelo id (400 se invalido, 404 se nao existir)
+// ------------------------------------------------------------
 app.get('/treinos/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const treino = db.prepare('SELECT * FROM treinos WHERE id = ?').get(id);
+    const { id } = req.params;
+
+    // Regra 12: Valida se o ID enviado NÃO é composto apenas de números inteiros
+    if (!/^\d+\$/.test(id)) {
+        return res.status(400).json({ erro: 'O ID fornecido deve ser um numero inteiro valido.' });
+    }
+
+    const idNumerico = Number(id);
+    const treino = db.prepare('SELECT * FROM treinos WHERE id = ?').get(idNumerico);
+    
     if (treino === undefined) {
         return res.status(404).json({ erro: 'Treino nao encontrado.' });
     }
@@ -71,7 +107,6 @@ app.get('/treinos/:id', (req, res) => {
 // ------------------------------------------------------------
 // POST /treinos - cria um treino (400 se os dados forem invalidos)
 // ------------------------------------------------------------
-
 app.post('/treinos', (req, res) => {
     const erro = validarTreino(req.body);
     if (erro !== null) {
@@ -87,10 +122,10 @@ app.post('/treinos', (req, res) => {
         .get(resultado.lastInsertRowid);
     res.status(201).json(novo);
 });
+
 // ------------------------------------------------------------
 // PUT /treinos/:id - substitui um treino
 // ------------------------------------------------------------
-
 app.put('/treinos/:id', (req, res) => {
     const id = Number(req.params.id);
     const treino = db.prepare('SELECT * FROM treinos WHERE id = ?').get(id);
@@ -119,7 +154,6 @@ app.delete('/treinos/:id', (req, res) => {
     db.prepare('DELETE FROM treinos WHERE id = ?').run(id);
     res.status(204).end();
 });
-
 
 // ------------------------------------------------------------
 const PORTA = 3000;
