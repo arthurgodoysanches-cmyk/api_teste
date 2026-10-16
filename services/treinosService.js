@@ -1,22 +1,17 @@
 const repository = require('../repositories/treinosRepository.js');
 
 function validarTreino(corpo) {
-  if (typeof corpo.nome !== 'string' || corpo.nome.trim() === '') {
+  if (typeof corpo.nome !== 'string' || corpo.nome.trim() === ''){
     return 'O campo nome e obrigatorio e deve ser um texto.';
   }
-  // Regra do Exercício 14: maior que zero e no máximo 180 minutos
-  if (typeof corpo.duracao !== 'number' || corpo.duracao <= 0 || corpo.duracao > 180) {
+  if (typeof corpo.duracao !== 'number' || corpo.duracao <= 0) {
     return 'O campo duracao e obrigatorio e deve ser um numero maior que zero.';
   }
   return null;
 }
 
-function listarTodos(busca) {
-  return repository.listarTodos(busca);
-}
-
-function obterResumo() {
-  return repository.obterResumo();
+function listarTodos() {
+  return repository.listarTodos();
 }
 
 function buscarPorId(id) {
@@ -25,7 +20,7 @@ function buscarPorId(id) {
 
 function criarTreino(corpo) {
   const erro = validarTreino(corpo);
-  if (erro !== null) {
+  if (erro !== null){
     return { erro: erro };
   }
   const novo = repository.criar(corpo.nome, corpo.duracao);
@@ -38,7 +33,7 @@ function atualizarTreino(id, corpo) {
     return { naoEncontrado: true };
   }
   const erro = validarTreino(corpo);
-  if (erro !== null) {
+  if (erro !== null){
     return { erro: erro };
   }
   const atualizado = repository.atualizar(id, corpo.nome, corpo.duracao);
@@ -56,9 +51,8 @@ function removerTreino(id) {
 
 module.exports = {
   listarTodos,
-  obterResumo,
   buscarPorId,
   criarTreino,
   atualizarTreino,
-  removerTreino
+  removerTreino,
 };

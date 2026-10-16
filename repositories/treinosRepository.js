@@ -1,27 +1,7 @@
 const db = require('../banco.js');
 
-function listarTodos(busca) {
-  if (busca) {
-    const termoBusca = `%${busca}%`;
-    return db.prepare('SELECT * FROM treinos WHERE nome LIKE ?').all(termoBusca);
-  }
+function listarTodos() {
   return db.prepare('SELECT * FROM treinos').all();
-}
-
-function obterResumo() {
-  const resumo = db.prepare(`
-    SELECT 
-      COUNT(*) AS total, 
-      SUM(duracao) AS minutos, 
-      AVG(duracao) AS media 
-    FROM treinos
-  `).get();
-
-  return {
-    total: Number(resumo.total || 0),
-    minutos: Number(resumo.minutos || 0),
-    media: Number(resumo.media || 0)
-  };
 }
 
 function buscarPorId(id) {
@@ -46,11 +26,4 @@ function remover(id) {
   return resultado.changes > 0;
 }
 
-module.exports = {
-  listarTodos,
-  obterResumo,
-  buscarPorId,
-  criar,
-  atualizar,
-  remover
-};
+module.exports = { listarTodos, buscarPorId, criar, atualizar, remover };
