@@ -1,5 +1,5 @@
 ### ============================================================
-### testes.http - o contrato da API
+### testes.http - o contrato da API (Atualizado Aula 05)
 ### ============================================================
 ### Abra este arquivo no VS Code com a extensao REST Client e
 ### clique em "Send Request" em cada bloco.
@@ -8,12 +8,82 @@
 
 @url = http://localhost:3000
 
+### ============================================================
+### SEÇÃO AULA 05 - AUTENTICAÇÃO E SESSÕES (Exercícios 15, 16, 17 e 18)
+### ============================================================
+
+### A5.1 - Perfil sem logar (Ex. 16)       -> espera 401 Unauthorized
+GET {{url}}/perfil
+
+
+### A5.2 - Criar treino sem logar (Ex. 18) -> espera 401 (Bloqueado!)
+POST {{url}}/treinos
+Content-Type: application/json
+
+{
+    "nome": "Tentativa Deslogada",
+    "duracao": 60
+}
+
+
+### A5.3 - Login dados incorretos (Ex. 16) -> espera 401
+POST {{url}}/login
+Content-Type: application/json
+
+{
+    "usuario": "diego",
+    "senha": "senha_errada"
+}
+
+
+### A5.4 - Login Diego correto (Ex. 15/17) -> espera 200 e Set-Cookie
+POST {{url}}/login
+Content-Type: application/json
+
+{
+    "usuario": "diego",
+    "senha": "1234"
+}
+
+
+### A5.5 - Ver perfil logado (Ex. 15/17)   -> espera 200 e traz dados de 'diego'
+GET {{url}}/perfil
+
+
+### A5.6 - Login Aluno correto (Ex. 17)    -> espera 200 (Troca de cookie/sessão)
+POST {{url}}/login
+Content-Type: application/json
+
+{
+    "usuario": "aluno",
+    "senha": "senha"
+}
+
+
+### A5.7 - Ver perfil do Aluno (Ex. 17)    -> espera 200 e traz dados de 'aluno'
+GET {{url}}/perfil
+
+
+### A5.8 - Fazer Logout (Ex. 15)           -> espera 204 sem corpo
+POST {{url}}/logout
+
+
+### A5.9 - Perfil após logout (Ex. 15)     -> espera 401 Unauthorized
+GET {{url}}/perfil
+
+
+### ============================================================
+### SEÇÃO AULA 04 - ROTAS DE TREINOS (Faça login antes de rodar os POSTs/PUTs/DELETEs)
+### ============================================================
+
+### ** ATENÇÃO **: Para rodar as requisições abaixo que criam ou alteram treinos, 
+### certifique-se de executar a requisição 'A5.4' ou 'A5.6' primeiro para estar logado!
 
 ### 1 - Listar todos os treinos            -> espera 200 e um array
 GET {{url}}/treinos
 
 
-### 2 - Criar um treino                    -> espera 201
+### 2 - Criar um treino                    -> espera 201 (Precisa estar logado!)
 POST {{url}}/treinos
 Content-Type: application/json
 
@@ -23,7 +93,7 @@ Content-Type: application/json
 }
 
 
-### 3 - Criar outro treino                 -> espera 201
+### 3 - Criar outro treino                 -> espera 201 (Precisa estar logado!)
 POST {{url}}/treinos
 Content-Type: application/json
 
@@ -41,7 +111,7 @@ GET {{url}}/treinos/1
 GET {{url}}/treinos/99999
 
 
-### 6 - Criar sem o nome                   -> espera 400
+### 6 - Criar sem o nome                   -> espera 400 (Precisa estar logado!)
 POST {{url}}/treinos
 Content-Type: application/json
 
@@ -50,7 +120,7 @@ Content-Type: application/json
 }
 
 
-### 7 - Criar com duracao invalida         -> espera 400
+### 7 - Criar com duracao invalida         -> espera 400 (Precisa estar logado!)
 POST {{url}}/treinos
 Content-Type: application/json
 

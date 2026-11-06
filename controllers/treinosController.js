@@ -1,3 +1,4 @@
+const authController = require('./authController.js'); // Importação para o Exercício 18
 const service = require('../services/treinosService.js');
 
 function listar(req, res) {
@@ -15,6 +16,12 @@ function buscarUm(req, res) {
 }
 
 function criar(req, res) {
+  // Exercício 18: Verifica se há um usuário logado antes de deixar criar o treino
+  const dono = authController.usuarioDaRequisicao(req);
+  if (dono === null) {
+    return res.status(401).json({ erro: 'Faca login primeiro.' });
+  }
+
   const resultado = service.criarTreino(req.body);
   if (resultado.erro !== undefined) {
     return res.status(400).json({ erro: resultado.erro });
