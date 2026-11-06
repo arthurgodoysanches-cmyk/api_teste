@@ -1,9 +1,16 @@
+const bcrypt = require('bcrypt');
 const repository = require("../repositories/usuariosRepository.js");
 
-function login(usuario, senha) {
+async function login(usuario, senha) {
   const encontrado = repository.buscarPorUsuario(usuario);
 
-  if (encontrado === undefined || encontrado.senha !== senha) {
+  if (encontrado === undefined) {
+    return { invalido: true };
+  }
+
+  // Compara a senha em texto puro com o hash salvo no banco
+  const senhaBate = await bcrypt.compare(senha, encontrado.senha_hash);
+  if (!senhaBate) {
     return { invalido: true };
   }
 

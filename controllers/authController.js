@@ -14,11 +14,12 @@ function lerCookie(req, nome) {
   return null;
 }
 
-function login(req, res) {
+// Rota de Login (Assíncrona para a Aula 06)
+async function login(req, res) {
   const usuario = (req.body.usuario ?? "").trim();
   const senha = req.body.senha ?? "";
 
-  const resultado = service.login(usuario, senha);
+  const resultado = await service.login(usuario, senha);
 
   if (resultado.invalido === true) {
     return res.status(401).json({ erro: "Usuario ou senha invalidos." });
@@ -55,4 +56,5 @@ function logout(req, res) {
   res.status(204).end();
 }
 
+// GARANTE QUE TODAS AS FUNÇÕES ESTÃO SENDO EXPORTADAS CORRETAMENTE:
 module.exports = { login, perfil, logout, usuarioDaRequisicao };
